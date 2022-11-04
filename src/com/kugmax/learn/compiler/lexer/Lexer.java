@@ -14,6 +14,17 @@ public class Lexer {
 
     public Token scan() throws IOException {
         for (;; peek = (char)System.in.read()) {
+            if (peek == '/') {
+                peek = (char)System.in.read();
+                if (peek == '/') {
+                    skipLine();
+                    continue;
+                } else if (peek == '*') {
+                    skipWhile("*/");
+                    continue;
+                }
+            }
+
             if (peek == ' ' || peek == '\t') {
                 continue;
             } else if (peek == '\n') {
@@ -33,7 +44,7 @@ public class Lexer {
         }
 
         if (Character.isLetter(peek)) {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
 
             do {
                 buffer.append(peek);
@@ -60,13 +71,43 @@ public class Lexer {
         words.put(word.getLexeme(), word);
     }
 
-    public int getLine() {
-        return line;
+    private void skipLine() throws IOException {
+        for (;; peek = (char)System.in.read()) {
+            if (peek == '\n' ) {
+                return;
+            }
+        }
+    }
+
+    private void skipWhile(String end) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        int matchIndex = 0;
+
+        for (;; peek = (char)System.in.read()) {
+            if (builder.toString().equals(end)) {
+                return;
+            }
+
+            if (peek == end.charAt(matchIndex)) {
+                builder.append(peek);
+                matchIndex++;
+                continue;
+            }
+
+            if (!builder.isEmpty()) {
+                matchIndex = 0;
+                builder = new StringBuilder();
+            }
+
+        }
     }
 
     public static void main(String[] args) throws Exception {
         Lexer lexer = new Lexer();
-        Token token = lexer.scan();
-        System.out.println( token );
+
+        while (true) {
+            Token token = lexer.scan();
+            System.out.println(lexer.line + ", " + token);
+        }
     }
 }
