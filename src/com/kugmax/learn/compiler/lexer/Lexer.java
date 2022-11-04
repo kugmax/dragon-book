@@ -13,7 +13,8 @@ public class Lexer {
     }
 
     public Token scan() throws IOException {
-        for (;; peek = (char)System.in.read()) {
+        while (true) {
+            peek = (char)System.in.read();
             if (peek == '/') {
                 peek = (char)System.in.read();
                 if (peek == '/') {
@@ -32,6 +33,38 @@ public class Lexer {
             } else {
                 break;
             }
+        }
+
+        if (peek == '<') {
+            peek = (char)System.in.read();
+            if (peek == '=') {
+                return new Operator(Tag.LESS_EQUAL, "<=");
+            } else {
+                return new Operator(Tag.LESS, "<");
+            }
+        }
+
+        if (peek == '>') {
+            peek = (char)System.in.read();
+            if (peek == '=') {
+                return new Operator(Tag.GREATER_EQUAL, ">=");
+            } else {
+                return new Operator(Tag.GREATER, ">");
+            }
+        }
+
+        if (peek == '=') {
+            peek = (char)System.in.read();
+            if (peek == '=') {
+                return new Operator(Tag.EQUAL, "==");
+            } //TODO: what else??, word??
+        }
+
+        if (peek == '!') {
+            peek = (char)System.in.read();
+            if (peek == '=') {
+                return new Operator(Tag.NOT_EQUAL, "!=");
+            } //TODO: what else??, word??
         }
 
         if (Character.isDigit(peek)) {
@@ -98,7 +131,6 @@ public class Lexer {
                 matchIndex = 0;
                 builder = new StringBuilder();
             }
-
         }
     }
 

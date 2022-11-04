@@ -16,6 +16,7 @@ public class Word extends Token {
     public String toString() {
         return "Word{" +
                 "lexeme='" + lexeme + '\'' +
+                ", tag=" + tag +
                 '}';
     }
 }

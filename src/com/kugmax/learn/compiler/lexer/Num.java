@@ -16,6 +16,7 @@ public class Num extends Token {
     public String toString() {
         return "Num{" +
                 "value=" + value +
+                ", tag=" + tag +
                 '}';
     }
 }

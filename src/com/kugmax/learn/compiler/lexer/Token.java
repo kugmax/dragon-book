@@ -1,7 +1,7 @@
 package com.kugmax.learn.compiler.lexer;
 
 public class Token {
-    private final int tag;
+    protected final int tag;
 
     public Token(int tag) {
         this.tag = tag;
