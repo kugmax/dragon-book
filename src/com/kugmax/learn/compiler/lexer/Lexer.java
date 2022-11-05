@@ -13,6 +13,33 @@ public class Lexer {
     }
 
     public Token scan() throws IOException {
+        parseSkipSymbols();
+
+        Token result = parseOperators();
+        if (result != null) {
+            return result;
+        }
+
+        result = parseDigit();
+        if (result != null) {
+            return result;
+        }
+
+        result = parseLetter();
+        if (result != null) {
+            return result;
+        }
+
+        result = new Token(peek);
+        peek = ' ';
+        return result;
+    }
+
+    public void reserve(Word word) {
+        words.put(word.getLexeme(), word);
+    }
+
+    public void parseSkipSymbols() throws IOException {
         while (true) {
             peek = (char)System.in.read();
             if (peek == '/') {
@@ -34,7 +61,66 @@ public class Lexer {
                 break;
             }
         }
+    }
 
+    public Token parseDigit() throws IOException {
+        if (!Character.isDigit(peek) && peek != '.') {
+            return null;
+        }
+
+        int value = 0;
+        double decimal = 0;
+        double decimalRadix = 1;
+        do {
+            if (peek == '.') {
+                decimalRadix = 0.1;
+                peek = (char)System.in.read();
+
+                if (!Character.isDigit(peek)) {
+                    break;
+                }
+            }
+
+            if (decimalRadix < 1) {
+                decimal += decimalRadix * Character.digit(peek, 10);
+                decimalRadix *= 0.1;
+            } else {
+                value = 10 * value + Character.digit(peek, 10);
+            }
+
+            peek = (char)System.in.read();
+        } while (Character.isDigit(peek) ||  peek == '.');
+
+        if (decimalRadix < 1) {
+            return new DoubleNumber(Tag.DOUBLE_NUM, value + decimal);
+        }
+
+        return new Num(value);
+    }
+
+    public Token parseLetter() throws IOException {
+        if (!Character.isLetter(peek)) {
+            return null;
+        }
+
+        StringBuilder buffer = new StringBuilder();
+        do {
+            buffer.append(peek);
+            peek = (char)System.in.read();
+        } while (Character.isLetterOrDigit(peek));
+
+        String s = buffer.toString();
+        Word word = words.get(buffer.toString());
+        if (word != null) {
+            return word;
+        }
+
+        word = new Word(Tag.ID, s);
+        words.put(s, word);
+        return word;
+    }
+
+    public Token parseOperators() throws IOException {
         if (peek == '<') {
             peek = (char)System.in.read();
             if (peek == '=') {
@@ -67,41 +153,7 @@ public class Lexer {
             } //TODO: what else??, word??
         }
 
-        if (Character.isDigit(peek)) {
-            int value = 0;
-            do {
-                value = 10 * value + Character.digit(peek, 10);
-                peek = (char)System.in.read();
-            } while (Character.isDigit(peek));
-            return new Num(value);
-        }
-
-        if (Character.isLetter(peek)) {
-            StringBuilder buffer = new StringBuilder();
-
-            do {
-                buffer.append(peek);
-                peek = (char)System.in.read();
-            } while (Character.isLetterOrDigit(peek));
-
-            String s = buffer.toString();
-            Word word = words.get(buffer.toString());
-            if (word != null) {
-                return word;
-            }
-
-            word = new Word(Tag.ID, s);
-            words.put(s, word);
-            return word;
-        }
-
-        Token token = new Token(peek);
-        peek = ' ';
-        return token;
-    }
-
-    public void reserve(Word word) {
-        words.put(word.getLexeme(), word);
+        return null;
     }
 
     private void skipLine() throws IOException {

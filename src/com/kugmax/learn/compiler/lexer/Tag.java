@@ -14,4 +14,6 @@ public class Tag {
 
     public final static int GREATER_EQUAL = 263;
     public final static int GREATER = 264;
+
+    public final static int DOUBLE_NUM = 265;
 }
