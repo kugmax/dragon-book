@@ -1,190 +1,139 @@
 package com.kugmax.learn.compiler.lexer;
+import com.kugmax.learn.compiler.sybmols.Type;
+
 import java.io.*;
 import java.util.*;
 
 public class Lexer {
-    private int line = 1;
+    public static int line = 1;
+
     private char peek = ' ';
     private Map<String, Word> words = new HashMap<>();
 
     public Lexer() {
-        reserve(new Word(Tag.TRUE, "true"));
-        reserve(new Word(Tag.FALSE, "false"));
-    }
+        reserve(new Word("if", Tag.IF));
+        reserve(new Word("else", Tag.ELSE));
+        reserve(new Word("while", Tag.WHILE));
+        reserve(new Word("do", Tag.DO));
+        reserve(new Word("break", Tag.BREAK));
+        reserve(new Word("", Tag.BREAK));
 
-    public Token scan() throws IOException {
-        parseSkipSymbols();
-
-        Token result = parseOperators();
-        if (result != null) {
-            return result;
-        }
-
-        result = parseDigit();
-        if (result != null) {
-            return result;
-        }
-
-        result = parseLetter();
-        if (result != null) {
-            return result;
-        }
-
-        result = new Token(peek);
-        peek = ' ';
-        return result;
+        reserve(Word.True);
+        reserve(Word.False);
+        reserve(Type.Int);
+        reserve(Type.Bool);
+        reserve(Type.Char);
+        reserve(Type.Float);
     }
 
     public void reserve(Word word) {
         words.put(word.getLexeme(), word);
     }
 
-    public void parseSkipSymbols() throws IOException {
-        while (true) {
-            peek = (char)System.in.read();
-            if (peek == '/') {
-                peek = (char)System.in.read();
-                if (peek == '/') {
-                    skipLine();
-                    continue;
-                } else if (peek == '*') {
-                    skipWhile("*/");
-                    continue;
+    public void readch() throws IOException {
+        peek = (char) System.in.read();
+    }
+
+    public boolean readch(char c) throws IOException {
+        readch();
+        if (peek != c) {
+            return false;
+        }
+        peek = ' ';
+        return true;
+    }
+
+    public Token scan() throws IOException {
+        for (;; readch()) {
+           if (peek == ' ' || peek == '\t') {
+               continue;
+           } else if (peek == '\n') {
+               line++;
+           } else {
+               break;
+           }
+        }
+        switch (peek) {
+            case '&':
+                if (readch('&')) {
+                    return Word.and;
+                } else {
+                    return new Token('&');
                 }
-            }
-
-            if (peek == ' ' || peek == '\t') {
-                continue;
-            } else if (peek == '\n') {
-                line = line + 1;
-            } else {
-                break;
-            }
-        }
-    }
-
-    public Token parseDigit() throws IOException {
-        if (!Character.isDigit(peek) && peek != '.') {
-            return null;
-        }
-
-        int value = 0;
-        double decimal = 0;
-        double decimalRadix = 1;
-        do {
-            if (peek == '.') {
-                decimalRadix = 0.1;
-                peek = (char)System.in.read();
-
-                if (!Character.isDigit(peek)) {
-                    break;
+            case '|':
+                if (readch('|')) {
+                    return Word.or;
+                } else {
+                    return new Token('|');
                 }
+            case '=':
+                if (readch('=')) {
+                    return Word.eq;
+                } else {
+                    return new Token('=');
+                }
+            case '!':
+                if (readch('=')) {
+                    return Word.ne;
+                } else {
+                    return new Token('!');
+                }
+            case '<':
+                if (readch('=')) {
+                    return Word.le;
+                } else {
+                    return new Token('<');
+                }
+            case '>':
+                if (readch('=')) {
+                    return Word.ge;
+                } else {
+                    return new Token('>');
+                }
+        }
+        if (Character.isDigit(peek)) {
+            int v = 0;
+            do {
+                v = 10 * v + Character.digit(peek, 10);
+                readch();
+            } while (Character.isDigit(peek));
+            if (peek != '.') {
+               return new Num(v);
             }
+            double x = v;
+            double d = 10;
 
-            if (decimalRadix < 1) {
-                decimal += decimalRadix * Character.digit(peek, 10);
-                decimalRadix *= 0.1;
-            } else {
-                value = 10 * value + Character.digit(peek, 10);
+            for (;;) {
+               readch();
+               if (!Character.isDigit(peek)) {
+                   break;
+               }
+               x = x + Character.digit(peek, 10) / d;
+               d *= 10;
             }
-
-            peek = (char)System.in.read();
-        } while (Character.isDigit(peek) ||  peek == '.');
-
-        if (decimalRadix < 1) {
-            return new DoubleNumber(Tag.DOUBLE_NUM, value + decimal);
+            return new Real(x);
         }
 
-        return new Num(value);
+        if (Character.isLetter(peek)) {
+           StringBuilder b = new StringBuilder();
+           do {
+               b.append(peek);
+               readch();
+           } while (Character.isLetterOrDigit(peek));
+           String s = b.toString();
+           Word w = (Word)words.get(s);
+           if (w != null) {
+               return w;
+           }
+           w = new Word(s, Tag.ID);
+           words.put(s, w);
+           return w;
+        }
+        Token token = new Token(peek);
+        peek = ' ';
+        return token;
     }
 
-    public Token parseLetter() throws IOException {
-        if (!Character.isLetter(peek)) {
-            return null;
-        }
-
-        StringBuilder buffer = new StringBuilder();
-        do {
-            buffer.append(peek);
-            peek = (char)System.in.read();
-        } while (Character.isLetterOrDigit(peek));
-
-        String s = buffer.toString();
-        Word word = words.get(buffer.toString());
-        if (word != null) {
-            return word;
-        }
-
-        word = new Word(Tag.ID, s);
-        words.put(s, word);
-        return word;
-    }
-
-    public Token parseOperators() throws IOException {
-        if (peek == '<') {
-            peek = (char)System.in.read();
-            if (peek == '=') {
-                return new Operator(Tag.LESS_EQUAL, "<=");
-            } else {
-                return new Operator(Tag.LESS, "<");
-            }
-        }
-
-        if (peek == '>') {
-            peek = (char)System.in.read();
-            if (peek == '=') {
-                return new Operator(Tag.GREATER_EQUAL, ">=");
-            } else {
-                return new Operator(Tag.GREATER, ">");
-            }
-        }
-
-        if (peek == '=') {
-            peek = (char)System.in.read();
-            if (peek == '=') {
-                return new Operator(Tag.EQUAL, "==");
-            } //TODO: what else??, word??
-        }
-
-        if (peek == '!') {
-            peek = (char)System.in.read();
-            if (peek == '=') {
-                return new Operator(Tag.NOT_EQUAL, "!=");
-            } //TODO: what else??, word??
-        }
-
-        return null;
-    }
-
-    private void skipLine() throws IOException {
-        for (;; peek = (char)System.in.read()) {
-            if (peek == '\n' ) {
-                return;
-            }
-        }
-    }
-
-    private void skipWhile(String end) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        int matchIndex = 0;
-
-        for (;; peek = (char)System.in.read()) {
-            if (builder.toString().equals(end)) {
-                return;
-            }
-
-            if (peek == end.charAt(matchIndex)) {
-                builder.append(peek);
-                matchIndex++;
-                continue;
-            }
-
-            if (!builder.isEmpty()) {
-                matchIndex = 0;
-                builder = new StringBuilder();
-            }
-        }
-    }
 
     public static void main(String[] args) throws Exception {
         Lexer lexer = new Lexer();
