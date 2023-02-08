@@ -21,10 +21,10 @@ public class Expr extends Node {
     }
 
     public void jumping(int t, int f) {
-        return emitJumps(toString(), t, f);
+        emitJumps(toString(), t, f);
     }
 
-    public void emitJumping(String test, int t, int f) {
+    public void emitJumps(String test, int t, int f) {
         if (t != 0 && f != 0) {
             emit("if" + test + " goto L" + t);
             emit("goto L" + t);

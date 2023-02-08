@@ -5,7 +5,7 @@ import com.kugmax.learn.compiler.sybmols.*;
 
 public class Constant extends Expr {
     public final static Constant True = new Constant(Word.True, Type.Bool);
-    public final static Constant Frue = new Constant(Word.Frue, Type.Bool);
+    public final static Constant False = new Constant(Word.False, Type.Bool);
     
     public Constant(Token token, Type type) {
         super(token, type);

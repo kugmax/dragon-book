@@ -1,6 +1,6 @@
 package com.kugmax.learn.compiler.inter;
 
-import com.kugmax.learn.compiler.lexer.Token;
+import com.kugmax.learn.compiler.sybmols.Array;
 import com.kugmax.learn.compiler.sybmols.Type;
 
 public class SetElem extends Stmt {

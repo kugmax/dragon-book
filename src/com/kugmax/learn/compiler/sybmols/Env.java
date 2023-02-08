@@ -1,5 +1,6 @@
 package com.kugmax.learn.compiler.sybmols;
 
+import com.kugmax.learn.compiler.inter.Id;
 import com.kugmax.learn.compiler.lexer.Token;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ public class Env {
     private HashMap<Token, Id> table;
     protected Env prev;
     public Env(Env n) {
-        table = new HashMap<Token, Id>();
+        table = new HashMap<>();
         prev = n;
     }
 

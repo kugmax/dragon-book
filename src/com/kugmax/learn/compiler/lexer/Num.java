@@ -1,15 +1,11 @@
 package com.kugmax.learn.compiler.lexer;
 
 public class Num extends Token {
-    private final int value;
+    public final int value;
 
     public Num(int value) {
         super(Tag.NUM);
         this.value = value;
-    }
-
-    public int getValue() {
-        return value;
     }
 
     @Override
