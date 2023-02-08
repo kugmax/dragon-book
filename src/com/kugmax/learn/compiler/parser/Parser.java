@@ -9,7 +9,7 @@ import com.kugmax.learn.compiler.sybmols.Type;
 import java.io.IOException;
 
 public class Parser {
-    private Lexer lex;
+    private final Lexer lex;
     private Token look;
     Env top = null;
     int used = 0;
@@ -24,7 +24,7 @@ public class Parser {
     }
 
     public void error(String s) {
-        throw new Error("near line " + lex.line + ": " +s);
+        throw new Error("near line " + Lexer.line + ": " +s);
     }
 
     public void match(int t) throws IOException {
@@ -99,7 +99,7 @@ public class Parser {
 
     Stmt stmt() throws IOException {
         Expr x;
-        Stmt s, s1, s2 ;
+        Stmt s1, s2;
         Stmt savedStmt;
 
         switch (look.tag) {
@@ -270,6 +270,7 @@ public class Parser {
                 move();
                 x = bool();
                 match(')');
+                return x;
             case Tag.NUM:
                 x = new Constant(look, Type.Int);
                 move();
@@ -293,10 +294,10 @@ public class Parser {
                 String s = look.toString();
                 Id id = top.get(look);
                 if (id == null) {
-                    error(look.toString() + " undeclared");
+                    error(s + " undeclared");
                 }
                 move();
-                if (look.tag == '[') {
+                if (look.tag != '[') {
                     return id;
                 } else {
                     return offset(id);
