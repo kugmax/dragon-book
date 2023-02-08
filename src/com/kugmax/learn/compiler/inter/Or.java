@@ -9,12 +9,12 @@ public class Or extends Logical {
     }
 
     public void jumping(int t, int f) {
-        int lablel = t != 0 ? t : newLabel();
+        int label = t != 0 ? t : newLabel();
         expr1.jumping(label, 0);
         expr2.jumping(t, f);
 
         if (t == 0) {
-            emitLablel(label);
+            emitLabel(label);
         }
     }
 }

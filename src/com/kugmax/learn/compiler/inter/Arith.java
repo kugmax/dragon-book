@@ -19,7 +19,7 @@ public class Arith extends Op {
      }
 
      public Expr gen() {
-       return new Arith(op, expr1.reduce(), expr2.reudce());
+       return new Arith(op, expr1.reduce(), expr2.reduce());
      }
 
      public String toString() {

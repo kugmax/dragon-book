@@ -9,12 +9,12 @@ public class And extends Logical {
     }
 
     public void jumping(int t, int f) {
-        int lablel = f != 0 ? f : newLabel();
+        int label = f != 0 ? f : newLabel();
         expr1.jumping(0, label);
         expr2.jumping(t, f);
 
         if (f == 0) {
-            emitLablel(label);
+            emitLabel(label);
         }
     }
 }

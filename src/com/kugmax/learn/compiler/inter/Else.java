@@ -14,13 +14,13 @@ public class Else extends Stmt {
       this.stmt2 = stmt2;
 
       if (expr.type != Type.Bool) {
-         expr.error("boolean required in if")
+         expr.error("boolean required in if");
       }
     }
 
     public void gen(int b, int a) {
-        int lablel1 = newLabel();
-        int lablel2 = newLabel();
+        int label1 = newLabel();
+        int label2 = newLabel();
         expr.jumping(0, label2);
 
         emitLabel(label1);

@@ -1,6 +1,8 @@
 package com.kugmax.learn.compiler.inter;
 
+import com.kugmax.learn.compiler.lexer.Tag;
 import com.kugmax.learn.compiler.lexer.Token;
+import com.kugmax.learn.compiler.lexer.Word;
 import com.kugmax.learn.compiler.sybmols.Type;
 
 public class Access extends Op{

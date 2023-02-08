@@ -1,6 +1,7 @@
 package com.kugmax.learn.compiler.inter;
 
 import com.kugmax.learn.compiler.lexer.Token;
+import com.kugmax.learn.compiler.sybmols.Array;
 import com.kugmax.learn.compiler.sybmols.Type;
 
 public class Rel extends Logical {
@@ -11,7 +12,7 @@ public class Rel extends Logical {
     public Type check(Type t1, Type t2) {
         if (t1 instanceof Array || t2 instanceof Array ) {
             return null;
-        } else if (t1.type == t2.type) {
+        } else if (t1 == t2) {
             return Type.Bool;
         } else {
             return null;

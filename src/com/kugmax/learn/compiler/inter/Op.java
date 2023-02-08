@@ -1,7 +1,7 @@
 package com.kugmax.learn.compiler.inter;
 
 import com.kugmax.learn.compiler.lexer.*;
-import com.kugmax.learn.compiler.symbols.*;
+import com.kugmax.learn.compiler.sybmols.Type;
 
 public class Op extends Expr {
     public Op(Token token, Type type) {
@@ -9,9 +9,9 @@ public class Op extends Expr {
     }
 
     public Expr reduce() {
-        Expr x = get();
+        Expr x = gen();
 
-        Tmp t = new Temp(type);
+        Temp t = new Temp(type);
         emit(t.toString() + " = " + x.toString());
         return t;
     }
